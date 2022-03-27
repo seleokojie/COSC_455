@@ -1,13 +1,16 @@
 /** Lexer.java
  *
- * This program reads in a file and tokenizes it, that is it prints out the
+ * This program reads in a text file and tokenizes it, that is it prints out the
  * position, kind and value of each Lexeme, using the given grammar.
  *
- * Note: No libraries/modules such as regex are used in this program.
+ * Note: No libraries/modules that support regular expressions such as regex are used in this program.
+ * Note: All input files are assumed to be in the 'examples' directory.
  *
- * COSC 455.002
- * Sele Okojie
- * 3/22/2022
+ * @author: Sele Okojie
+ * @version: 1.0.3
+ * @date: 2022-03-28
+ * @email: eokoji1@students.towson.edu
+ * @github: https://github.com/seleokojie/COSC455-Project-1
  **/
 
 import java.io.File;
@@ -18,14 +21,6 @@ import java.util.Scanner;
 public class Lexer{
     // The scanner that reads the file
     static Scanner sc;
-
-    static {
-        try {
-            sc = new Scanner(new File("examples/tricky.txt")); //The file to be read
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 
     //All the key grammatical symbols we will reference to match the grammar
     static List<String> letters = List.of("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
@@ -110,9 +105,21 @@ public class Lexer{
         //Check if the current sequence is a Multi-Character Special Character
         if (position+1 < line.length && multiDigitSpecialChars.contains(value + line[position+1]) && !(line[position+1].equals(newline) || line[position+1].equals(whitespace))) {
             value = line[pos] + line[pos+1];
+
+            //Checks if the current sequence is a comment and, if so, skips the rest of the line and gets the next token
             if(value.equals(comment)) {
-                setLexer(lineNum, pos, kind = comment, value = comment);
-                line = new String[]{};
+                Lexer.lineNum++;
+
+                //This section of code skips blank newlines
+                String tempLine = sc.nextLine();
+                line = new String[tempLine.length()];
+
+                //Ideally, I'd like to use String.split() to split the line into an array of characters, but that method uses regex, which is not allowed in this project
+                for(int i = 0; i < tempLine.length(); i++)
+                    line[i] = tempLine.charAt(i) + "";
+
+                Lexer.pos = 0;
+                next();
                 return;
             }
             position += 2;
@@ -161,9 +168,13 @@ public class Lexer{
 
     public static String value(){ return value; }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws FileNotFoundException {
+        System.out.println("Enter the name of the text file you want to read (Ex. 'tricky'.txt):");
+        sc = new Scanner(new File("examples/" + new Scanner(System.in).nextLine() + ".txt")); //Get the file name from the user
         while (sc.hasNextLine()) {
+            pos = 0;
             lineNum++;
+
 
             //This section of code skips blank newlines
             String tempLine = sc.nextLine();
@@ -174,7 +185,6 @@ public class Lexer{
             for(int i = 0; i < tempLine.length(); i++)
                 line[i] = tempLine.charAt(i) + "";
 
-            pos = 0;
             while (pos < line.length) {
                 next();
                 printLexer();
