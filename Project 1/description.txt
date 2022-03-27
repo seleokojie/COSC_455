@@ -1,0 +1,20 @@
+In my program, for each line in a given file, I convert it into an array of characters and call my next() method.
+In the next method, after accounting for white spaces and new lines, if I want to recognize a number, I must make sure that the first character is a digit.
+If it is, the recognizeNum() method is called.
+In this method, I use a while loop to make a String of all sequential digits. Then, I set my token value to the String I just created and the kind of token to a number.
+I then return the token.
+
+The segment of code that I use to do this is as follows:
+public static void recognizeNum(int lineNum, int pos){
+    int position = firstPos = pos;
+    kind = "NUM";
+    value = "";
+
+    StringBuilder newValue = new StringBuilder(); //We use a StringBuilder to avoid concatenating strings in loops
+    while (position+1 <= line.length && numbers.contains(line[position])){
+        newValue.append(line[position]);
+        position++;
+    }
+    value = newValue.toString();
+    setLexer(lineNum, position, kind, value);
+}

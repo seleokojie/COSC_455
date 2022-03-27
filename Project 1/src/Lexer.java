@@ -70,7 +70,7 @@ public class Lexer{
         kind = "ID";
         value = "";
 
-        StringBuilder newValue = new StringBuilder(); //We use a StringBuilder to avoid concatenating strings
+        StringBuilder newValue = new StringBuilder(); //We use a StringBuilder to avoid concatenating strings in loops
         while (position+1 <= line.length && (letters.contains(line[position]) || numbers.contains(line[position]) || underscore.equals(line[position]))){
             newValue.append(line[position]);
             position++;
@@ -88,7 +88,7 @@ public class Lexer{
         kind = "NUM";
         value = "";
 
-        StringBuilder newValue = new StringBuilder(); //We use a StringBuilder to avoid concatenating strings
+        StringBuilder newValue = new StringBuilder(); //We use a StringBuilder to avoid concatenating strings in loops
         while (position+1 <= line.length && numbers.contains(line[position])){
             newValue.append(line[position]);
             position++;
