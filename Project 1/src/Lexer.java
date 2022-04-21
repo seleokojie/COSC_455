@@ -11,7 +11,7 @@
  * @date: 2022-03-28
  * @email: eokoji1@students.towson.edu
  * @github: https://github.com/seleokojie/COSC455-Project-1
- **/
+ */
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -170,7 +170,7 @@ public class Lexer{
 
     public static void main(String[] args) throws FileNotFoundException {
         System.out.println("Enter the name of the text file you want to read (Ex. 'tricky'.txt):");
-        sc = new Scanner(new File("examples/" + new Scanner(System.in).nextLine() + ".txt")); //Get the file name from the user
+        sc = new Scanner(new File("Project 1/examples/" + new Scanner(System.in).nextLine() + ".txt")); //Get the file name from the user
         while (sc.hasNextLine()) {
             pos = 0;
             lineNum++;
