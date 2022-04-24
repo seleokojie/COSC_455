@@ -38,7 +38,7 @@ public class Lexer{
     private static final String tab = "\t";
 
     static int firstPos; //Returns the position of the first character for multi-character chars
-    static int pos = 1; //The position of the token in a line
+    static int pos = 0; //The position of the token in a line
     static int lineNum = 0; //The line number of the token
     static String[] line; //The current line
     static String kind = ""; //The kind of token ("ID", "NUM", value)
@@ -134,9 +134,27 @@ public class Lexer{
 
     //Reads the next lexeme in the input file
     public static void next(){
-        if (sc.hasNextLine() || pos < line.length) {
-            while (pos < line.length && (line[pos].equals(whitespace) || line[pos].equals(newline) || line[pos].equals(tab))) //White space recognition
+        if (line != null && (sc.hasNextLine() || pos < line.length)) {
+            while (pos < line.length && (line[pos].equals(whitespace) || line[pos].equals(newline) || line[pos].equals(tab)))//Skips inline whitespace and newlines and tabs
                 pos++;
+
+            //If the end of the line is reached after skipping whitespace, get the next line, reset the position, and call next() again. If the end of file is reached,
+            if (pos == line.length) {
+
+                if (!sc.hasNextLine()) {
+                    line = null;
+                    firstPos = pos;
+                    setLexer(lineNum, firstPos, "end-of-text", "end-of-text");
+                    return;
+                }else {
+                    pos = 0;
+                    Lexer.lineNum++;
+                    String tempLine = sc.nextLine();
+                    line = generateLine(tempLine);
+                    next();
+                }
+                return;
+            }
 
             //Takes in the current symbol and checks if it is a keyword, ID, number or special character
             String current = line[pos];
@@ -168,29 +186,37 @@ public class Lexer{
 
     public static String value(){ return value; }
 
+    public static String[] generateLine(String tempLine){
+        String[] line = new String[tempLine.length()];
+
+        //Ideally, I'd like to use String.split() to split the line into an array of characters, but that method uses regex, which is not allowed in this project
+        for(int i = 0; i < tempLine.length(); i++)
+            line[i] = tempLine.charAt(i) + "";
+        return line;
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
         System.out.println("Enter the name of the text file you want to read (Ex. 'tricky'.txt):");
-        sc = new Scanner(new File("Project 1/examples/" + new Scanner(System.in).nextLine() + ".txt")); //Get the file name from the user
+        sc = new Scanner(new File("examples/" + new Scanner(System.in).nextLine() + ".txt")); //Get the file name from the user
+
         while (sc.hasNextLine()) {
             pos = 0;
             lineNum++;
 
-
             //This section of code skips blank newlines
             String tempLine = sc.nextLine();
             if(tempLine.length() == 0) continue;
-            line = new String[tempLine.length()];
+            line = generateLine(tempLine);
 
-            //Ideally, I'd like to use String.split() to split the line into an array of characters, but that method uses regex, which is not allowed in this project
-            for(int i = 0; i < tempLine.length(); i++)
-                line[i] = tempLine.charAt(i) + "";
-
-            while (pos < line.length) {
+            while (line != null && pos < line.length) {
                 next();
                 printLexer();
+                if(kind.equals("end-of-text")) System.exit(0);
             }
         }
-        next(); //Prints the end-of-text token
-        printLexer();
+        if (!sc.hasNextLine()) {
+            next();
+            printLexer();
+        }
     }
 }
