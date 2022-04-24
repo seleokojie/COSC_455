@@ -108,18 +108,19 @@ public class Lexer{
 
             //Checks if the current sequence is a comment and, if so, skips the rest of the line and gets the next token
             if(value.equals(comment)) {
-                Lexer.lineNum++;
+                if (!sc.hasNextLine()) {
+                    line = null;
+                    firstPos = pos;
+                    setLexer(lineNum, firstPos, "end-of-text", "end-of-text");
+                } else {
+                    Lexer.lineNum++;
 
-                //This section of code skips blank newlines
-                String tempLine = sc.nextLine();
-                line = new String[tempLine.length()];
+                    //This section of code skips blank newlines
+                    line = generateLine();
 
-                //Ideally, I'd like to use String.split() to split the line into an array of characters, but that method uses regex, which is not allowed in this project
-                for(int i = 0; i < tempLine.length(); i++)
-                    line[i] = tempLine.charAt(i) + "";
-
-                Lexer.pos = 0;
-                next();
+                    Lexer.pos = 0;
+                    next();
+                }
                 return;
             }
             position += 2;
@@ -133,7 +134,7 @@ public class Lexer{
     }
 
     //Reads the next lexeme in the input file
-    public static void next(){
+    public static void next(){ //single_line_comments
         if (line != null && (sc.hasNextLine() || pos < line.length)) {
             while (pos < line.length && (line[pos].equals(whitespace) || line[pos].equals(newline) || line[pos].equals(tab)))//Skips inline whitespace and newlines and tabs
                 pos++;
@@ -149,8 +150,7 @@ public class Lexer{
                 }else {
                     pos = 0;
                     Lexer.lineNum++;
-                    String tempLine = sc.nextLine();
-                    line = generateLine(tempLine);
+                    line = generateLine();
                     next();
                 }
                 return;
@@ -186,7 +186,8 @@ public class Lexer{
 
     public static String value(){ return value; }
 
-    public static String[] generateLine(String tempLine){
+    public static String[] generateLine(){
+        String tempLine = sc.nextLine();
         String[] line = new String[tempLine.length()];
 
         //Ideally, I'd like to use String.split() to split the line into an array of characters, but that method uses regex, which is not allowed in this project
@@ -202,11 +203,7 @@ public class Lexer{
         while (sc.hasNextLine()) {
             pos = 0;
             lineNum++;
-
-            //This section of code skips blank newlines
-            String tempLine = sc.nextLine();
-            if(tempLine.length() == 0) continue;
-            line = generateLine(tempLine);
+            line = generateLine();
 
             while (line != null && pos < line.length) {
                 next();
