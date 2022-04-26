@@ -15,6 +15,7 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -39,17 +40,18 @@ public class Lexer{
 
     static int firstPos; //Returns the position of the first character for multi-character chars
     static int pos = 0; //The position of the token in a line
-    static int lineNum = 0; //The line number of the token
+    static int lineNum = 1; //The line number of the token
     static String[] line; //The current line
     static String kind = ""; //The kind of token ("ID", "NUM", value)
     static String value = ""; //The characters of the token
 
     //Constructor
-    public Lexer(int line, int pos, String kind, String value){
-        Lexer.pos = pos;
-        Lexer.lineNum = line;
-        Lexer.kind = kind;
-        Lexer.value = value;
+    public Lexer(File file) throws FileNotFoundException {
+        sc = new Scanner(file);
+        //Generate the first line
+        if(sc.hasNextLine()){
+            line = generateLine();
+        }
     }
 
     public static void setLexer(int line, int pos, String kind, String value){
@@ -136,35 +138,42 @@ public class Lexer{
     //Reads the next lexeme in the input file
     public static void next(){ //single_line_comments
         if (line != null && (sc.hasNextLine() || pos < line.length)) {
-            while (pos < line.length && (line[pos].equals(whitespace) || line[pos].equals(newline) || line[pos].equals(tab)))//Skips inline whitespace and newlines and tabs
-                pos++;
+            if(pos < line.length) {
+                while (pos < line.length && (line[pos].equals(whitespace) || line[pos].equals(newline) || line[pos].equals(tab)))//Skips inline whitespace and newlines and tabs
+                    pos++;
 
-            //If the end of the line is reached after skipping whitespace, get the next line, reset the position, and call next() again. If the end of file is reached,
-            if (pos == line.length) {
-
-                if (!sc.hasNextLine()) {
-                    line = null;
-                    firstPos = pos;
-                    setLexer(lineNum, firstPos, "end-of-text", "end-of-text");
+                //If the end of the line is reached after skipping whitespace, get the next line, reset the position, and call next() again. If the end of file is reached,
+                if (pos == line.length) {
+                    if (!sc.hasNextLine()) {
+                        line = null;
+                        firstPos = pos;
+                        setLexer(lineNum, firstPos, "end-of-text", "end-of-text");
+                        return;
+                    } else {
+                        pos = 0;
+                        Lexer.lineNum++;
+                        line = generateLine();
+                        next();
+                    }
                     return;
-                }else {
-                    pos = 0;
-                    Lexer.lineNum++;
-                    line = generateLine();
-                    next();
                 }
-                return;
-            }
 
-            //Takes in the current symbol and checks if it is a keyword, ID, number or special character
-            String current = line[pos];
-            if (letters.contains(current)) recognizeID(lineNum, pos);
-            else if (numbers.contains(current)) recognizeNum(lineNum, pos);
-            else if (specialChars.contains(current)) recognizeSpecialChar(lineNum, pos);
+                //Takes in the current symbol and checks if it is a keyword, ID, number or special character
+                String current = line[pos];
+                if (letters.contains(current)) recognizeID(lineNum, pos);
+                else if (numbers.contains(current)) recognizeNum(lineNum, pos);
+                else if (specialChars.contains(current)) recognizeSpecialChar(lineNum, pos);
 
-            else {
-                illegalChar(current);
-                System.exit(0);
+                else {
+                    illegalChar(current);
+                    System.exit(0);
+                }
+            }else{
+                //System.our
+                pos = 0;
+                lineNum++;
+                line = generateLine();
+                next();
             }
         } else {
             firstPos = pos;
@@ -172,7 +181,6 @@ public class Lexer{
         }
 
     }
-
     public static void printLexer(){
         if (kind.equals(value)) System.out.println(lineNum() + ":" + position() + ":'" + value() + "'");
         else System.out.println(lineNum() + ":" + position() + ":'" + kind() + "' " + value());
@@ -196,22 +204,16 @@ public class Lexer{
         return line;
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         System.out.println("Enter the name of the text file you want to read (Ex. 'tricky'.txt):");
-        sc = new Scanner(new File("examples/" + new Scanner(System.in).nextLine() + ".txt")); //Get the file name from the user
-
-        while (sc.hasNextLine()) {
-            pos = 0;
-            lineNum++;
-            line = generateLine();
-
-            while (line != null && pos < line.length) {
-                next();
-                printLexer();
-                if(kind.equals("end-of-text")) System.exit(0);
-            }
+        try{
+            sc = new Scanner(new File("Project 1/examples/" + new Scanner(System.in).nextLine() + ".txt")); //Get the file name from the user
+        } catch (FileNotFoundException e){
+            System.out.println("File not found.");
+            System.exit(0);
         }
-        if (!sc.hasNextLine()) {
+
+        while (!kind().equals("end-of-text")){
             next();
             printLexer();
         }
