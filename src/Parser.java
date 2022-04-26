@@ -1,10 +1,17 @@
-//a topdown, predictive, recursive descent parser for it.
-//The parser should take an input file from the command line. Then, lex should be called to tokenize the input file.
-//The parser should then call the AST constructor to create the AST.
-//The parser should then call the AST.print() method to print the AST
-//As soon as a syntax error is encountered the parser should stop (terminate execution) and
-//return the position of the error.
-//The parser should also print the line number and the line of the input file where the error was encountered.
+/** Parser.java
+ *
+ * This program will read the tokens parsed from the Lexer.java program and
+ * check for the correct syntax based on the given grammar.
+ *
+ * Note: No libraries/modules that support regular expressions such as regex are used in this program.
+ * Note: All input files are assumed to be in the 'examples' directory.
+ *
+ * @author: Sele Okojie
+ * @version: 1.1.2
+ * @date: 2022-04-26
+ * @email: eokoji1@students.towson.edu
+ * @github: https://github.com/seleokojie/COSC455-Project-2
+ */
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,27 +20,25 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Parser {
-    static Lexer lex;
-    public Parser(File file) throws FileNotFoundException {
-        Lexer lex = new Lexer(file);
-        lex.next();
+    static String filename;
+    public static void defineParser(String fileName) throws FileNotFoundException {
+        filename = fileName;
+        Lexer.defineLexer(new File("examples/" + fileName + ".txt"));
+        Lexer.next();
     }
 
     public static void match(String value){
-        if (lex.kind().equals(value)) {
-            lex.next();
-        }
-        else {
-            System.out.println("(" + lex.lineNum() + ":" + lex.position() + ")>>>>>Expected \"" + value + "\" but found \"" + lex.value() + "\"");
-            System.exit(0);
-        }
+        if (Lexer.kind().equals(value))
+            Lexer.next();
+        else
+            expected(List.of(value));
     }
 
     //Program  =  "program"  Identifier  ":"  Body  "end"
-    //Identifier  =  Letter { Letter | Digit | "_" } `This is done by the lex`
+    //Identifier  =  Letter { Letter | Digit | "_" } `This is done by the lexer`
     public static void program() {
         //Stops the program if the end-of-file token is reached
-        if (!lex.kind().equals("end-of-text")) {
+        if (!Lexer.kind().equals("end-of-text")) {
             match("program");
             match("ID");
             match(":");
@@ -45,7 +50,7 @@ public class Parser {
 
     //Body = [ Declarations ] Statements
     public static void body() {
-        if (lex.value().equals("bool") || lex.value().equals("int"))
+        if (Lexer.value().equals("bool") || Lexer.value().equals("int"))
             declarations();
         statements();
     }
@@ -53,13 +58,13 @@ public class Parser {
     //Declarations  =  Declaration { Declaration }
     public static void declarations() {
         declaration();
-        while (lex.value().equals("bool") || lex.value().equals("int"))
+        while (Lexer.value().equals("bool") || Lexer.value().equals("int"))
             declaration();
     }
 
     //Declaration  =  ( "bool" | "int" )  Identifier ";"
     public static void declaration() {
-        if (lex.value().equals("bool"))
+        if (Lexer.value().equals("bool"))
             match("bool");
         else
             match("int");
@@ -70,7 +75,7 @@ public class Parser {
     //Statements  =  Statement { ";" Statement }
     public static void statements() {
         statement();
-        while (lex.value().equals(";")) {
+        while (Lexer.value().equals(";")) {
             match(";");
             statement();
         }
@@ -79,10 +84,10 @@ public class Parser {
     /* Statement  =  AssignmentStatement
                   |  ConditionalStatement
                   |  IterativeStatement
-                  |  PrintStatement .
-    */
+                  |  PrintStatement .*/
+
     public static void statement() {
-        switch (lex.kind()) {
+        switch (Lexer.kind()) {
             case "ID" -> assignmentStatement();
             case "if" -> conditionalStatement();
             case "while" -> iterativeStatement();
@@ -93,9 +98,20 @@ public class Parser {
 
     //This function takes a list if the token type is not in that list
     //it will raise an error returning the position and details of the error.
-    public static void expected(List list) {
-        if (!list.contains(lex.value())) {
-            System.out.println("(" + lex.lineNum() + ":" + lex.position() + ")>>>>> Error: Expected " + list + " but found " + lex.value() + "\"");
+    public static void expected(List<String> list) {
+        if (!list.contains(Lexer.value())) {
+            System.out.println("../examples/" + filename + ".txt(" + Lexer.lineNum() + ":" + Lexer.position() + ")>>>>>Bad symbol '" + Lexer.value() + "': expected " + list);
+
+            //Prints out the line and then a caret at the position of the error
+            for(String x : Lexer.line)
+                System.out.print(x);
+            System.out.println();
+
+            //Prints out the caret at the position of the error
+            for(int i = 0; i < Lexer.position()-1; i++)
+                System.out.print(" ");
+            System.out.println("^");
+
             System.exit(0);
         }
     }
@@ -113,8 +129,8 @@ public class Parser {
         expression();
         match("then");
         body();
-        if (lex.value().equals("else")) {
-            lex.next();
+        if (Lexer.value().equals("else")) {
+            Lexer.next();
             body();
         }
         match("fi");
@@ -139,8 +155,8 @@ public class Parser {
     //RelationalOperator  =  "<" | "=<" | "=" | "!=" | ">=" | ">"
     public static void expression() {
         simpleExpression();
-        if (lex.value().equals("<") || lex.value().equals("=<") || lex.value().equals("=") || lex.value().equals("!=") || lex.value().equals(">=") || lex.value().equals(">")) {
-            lex.next();
+        if (Lexer.value().equals("<") || Lexer.value().equals("=<") || Lexer.value().equals("=") || Lexer.value().equals("!=") || Lexer.value().equals(">=") || Lexer.value().equals(">")) {
+            Lexer.next();
             simpleExpression();
         }
     }
@@ -149,8 +165,8 @@ public class Parser {
     //AdditiveOperator  =  "+" | "-" | "or"
     public static void simpleExpression() {
         term();
-        while (lex.value().equals("+") || lex.value().equals("-") || lex.value().equals("or")) {
-            lex.next();
+        while (Lexer.value().equals("+") || Lexer.value().equals("-") || Lexer.value().equals("or")) {
+            Lexer.next();
             term();
         }
     }
@@ -159,8 +175,8 @@ public class Parser {
     //MultiplicativeOperator  =  "*" | "/" | "and"
     public static void term() {
         factor();
-        while (lex.value().equals("*") || lex.value().equals("/") || lex.value().equals("and")) {
-            lex.next();
+        while (Lexer.value().equals("*") || Lexer.value().equals("/") || Lexer.value().equals("and")) {
+            Lexer.next();
             factor();
         }
     }
@@ -168,13 +184,13 @@ public class Parser {
     //Factor  =  [ UnaryOperator ] ( Literal  |  Identifier  | "(" Expression ")" )
     //UnaryOperator  =  "-" | "not"
     public static void factor() {
-        if (lex.value().equals("-") || lex.value().equals("not"))
-            lex.next();
-        switch (lex.kind()) {
+        if (Lexer.value().equals("-") || Lexer.value().equals("not"))
+            Lexer.next();
+        switch (Lexer.kind()) {
             case "true", "false", "NUM" -> literal();
-            case "ID" -> lex.next();
+            case "ID" -> Lexer.next();
             case "(" -> {
-                lex.next();
+                Lexer.next();
                 expression();
                 match(")");
             }
@@ -183,12 +199,11 @@ public class Parser {
     }
 
     //Literal  =  BooleanLiteral  |  IntegerLiteral
-    //IntegerLiteral  =  Digit { Digit } `This is done by the lex`
-
+    //IntegerLiteral  =  Digit { Digit } `This is done by the lexer`
     public static void literal() {
-        if(lex.kind().equals("NUM")) {
-            lex.next();
-            if (!(Arrays.asList(";", ")", "<", ">", "<=", ">=", "!=", "=", "+", "-", "or", "*", "/", "and", "do", "od", "fi", "then").contains(lex.value())))
+        if(Lexer.kind().equals("NUM")) {
+            Lexer.next();
+            if (!(Arrays.asList(";", ")", "<", ">", "<=", ">=", "!=", "=", "+", "-", "or", "*", "/", "and", "do", "od", "fi", "then").contains(Lexer.value())))
                 expected(List.of(";"));
         }else
             booleanLiteral();
@@ -196,18 +211,21 @@ public class Parser {
 
     //BooleanLiteral  =  "true"  |  "false"
     public static void booleanLiteral() {
-        if (lex.value().equals("true") || lex.value().equals("false"))
-            lex.next();
+        if (Lexer.value().equals("true") || Lexer.value().equals("false"))
+            Lexer.next();
         else
             expected(Arrays.asList("true", "false"));
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) {
         System.out.println("Enter the name of the text file you want to read (Ex. 'tricky'.txt):");
-        lex = new Lexer(new File("Project 2/examples/" + new Scanner(System.in).nextLine() + ".txt"));
-
-        while (!lex.value().equals("end-of-text")){
+        try{
+            filename = new Scanner(System.in).nextLine();
+            defineParser(filename);
             program();
+        } catch (FileNotFoundException e){
+            System.out.println("File not found.");
+            System.exit(0);
         }
     }
 }

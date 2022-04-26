@@ -18,7 +18,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
 
-public class Lexer{
+public final class Lexer{
     // The scanner that reads the file
     static Scanner sc;
 
@@ -44,8 +44,7 @@ public class Lexer{
     static String kind = ""; //The kind of token ("ID", "NUM", value)
     static String value = ""; //The characters of the token
 
-    //Constructor
-    public Lexer(File file) throws FileNotFoundException {
+    public static void defineLexer(File file) throws FileNotFoundException {
         sc = new Scanner(file);
         //Generate the first line
         if(sc.hasNextLine()){
@@ -206,15 +205,14 @@ public class Lexer{
     public static void main(String[] args) {
         System.out.println("Enter the name of the text file you want to read (Ex. 'tricky'.txt):");
         try{
-            sc = new Scanner(new File("Project 1/examples/" + new Scanner(System.in).nextLine() + ".txt")); //Get the file name from the user
+            defineLexer(new File("examples/" + new Scanner(System.in).nextLine() + ".txt"));
+            while (!kind().equals("end-of-text")){
+                next();
+                printLexer();
+            }
         } catch (FileNotFoundException e){
             System.out.println("File not found.");
             System.exit(0);
-        }
-
-        while (!kind().equals("end-of-text")){
-            next();
-            printLexer();
         }
     }
 }
