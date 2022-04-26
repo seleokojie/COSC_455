@@ -103,12 +103,7 @@ public class Parser {
     //AssignmentStatement  =  Identifier  ":="  Expression
     public static void assignmentStatement() {
         match("ID");
-        //To avoid the error of ": =" when the user types ": =" instead of ":=".
-        if (lex.value().equals(":")) {
-            match(":");
-            match("=");
-        }else if(lex.value().equals(":="))
-            match(":=");
+        match(":=");
         expression();
     }
 
@@ -209,7 +204,7 @@ public class Parser {
 
     public static void main(String[] args) throws FileNotFoundException {
         System.out.println("Enter the name of the text file you want to read (Ex. 'tricky'.txt):");
-        lex = new Lexer(new File("Project 1/examples/" + new Scanner(System.in).nextLine() + ".txt"));
+        lex = new Lexer(new File("Project 2/examples/" + new Scanner(System.in).nextLine() + ".txt"));
 
         while (!lex.value().equals("end-of-text")){
             program();
