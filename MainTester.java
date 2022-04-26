@@ -12,7 +12,7 @@ public class MainTester {
             Lexer.printLexer();
         }*/
 
-        Parser parser = new Parser(new File("Project 1/examples/" + new Scanner(System.in).nextLine() + ".txt"));
+        new Parser(new File("Project 1/examples/" + new Scanner(System.in).nextLine() + ".txt"));
         Parser.program();
     }
 }

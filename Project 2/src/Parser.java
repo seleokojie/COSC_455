@@ -53,7 +53,6 @@ public class Parser {
     //Declarations  =  Declaration { Declaration }
     public static void declarations() {
         declaration();
-        System.out.println("Passed declarations");
         while (lex.value().equals("bool") || lex.value().equals("int"))
             declaration();
     }
