@@ -5,9 +5,7 @@ Programming Languages: Design and Implementation
 
 A Lexical Analyzer that prints out the position, kind, and value of each Lexeme in a text file, using a given grammar.
 
-Simply run the file `Lexeme.java` located in the /src folder and input a file name
-
-##### Note: All runnable files must be located in the /examples folder
+Simply run the file `Lexer.java` and input a file name
 
 #### Example
 
@@ -30,3 +28,20 @@ if
 5:4:'end-of-text'
 ```
 
+## Project 2
+
+A top-down, predictive, recursive descent parser that checks for syntax errors in a given grammar.
+
+Simply run the file `Parser.java` and input a file name
+
+#### Example
+
+```java
+Enter the name of the text file you want to read (Ex. 'tricky'.txt):
+ab3
+        
+../examples/ab3.txt(5:5)>>>>>Bad symbol ':': expected [:=]
+a : = 2;
+  ^
+```
+##### Note: All runnable files must be located in the /src folder and all examples must be located in the /examples folder

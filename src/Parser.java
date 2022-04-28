@@ -7,7 +7,7 @@
  * Note: All input files are assumed to be in the 'examples' directory.
  *
  * @author: Sele Okojie
- * @version: 1.1.2
+ * @version: 1.2.1
  * @date: 2022-04-26
  * @email: eokoji1@students.towson.edu
  * @github: https://github.com/seleokojie/COSC455-Project-2

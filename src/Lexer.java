@@ -7,10 +7,10 @@
  * Note: All input files are assumed to be in the 'examples' directory.
  *
  * @author: Sele Okojie
- * @version: 1.0.3
+ * @version: 1.1.2
  * @date: 2022-03-28
  * @email: eokoji1@students.towson.edu
- * @github: https://github.com/seleokojie/COSC455-Project-1
+ * @github: https://github.com/seleokojie/COSC455
  */
 
 import java.io.File;
