@@ -1,6 +1,7 @@
-# COSC 455
+[Archival Purposes Only]
 
-Programming Languages: Design and Implementation
+# COSC 455 - Programming Languages: Design and Implementation
+
 ## Project 1
 
 A Lexical Analyzer that prints out the position, kind, and value of each Lexeme in a text file, using a given grammar.
