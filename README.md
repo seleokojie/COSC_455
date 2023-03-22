@@ -1,6 +1,6 @@
-[Archival Purposes Only]
-
 # COSC 455 - Programming Languages: Design and Implementation
+
+[Archival Purposes Only]
 
 ## Project 1
 
